@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  GameViewController.h
 //  pingPong
 //
 //  Created by Igor Chernyshov on 15/11/2018.
@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface GameViewController : UIViewController
 
 
 @end
