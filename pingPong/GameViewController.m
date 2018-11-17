@@ -104,6 +104,7 @@
 
 # pragma mark Game Brains
 
+// Score setters and getters
 - (NSInteger)scoreTopValue {
   return [_scoreTop.text intValue];
 }
@@ -120,6 +121,7 @@
   _scoreBottom.text = [NSString stringWithFormat:@"%ld", scoreBottomValue];
 }
 
+// Game logic
 - (void)displayMessage:(NSString *)message {
   [self stop];
   UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:message preferredStyle:(UIAlertControllerStyleAlert)];
@@ -197,8 +199,7 @@
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
   if (CGRectIntersectsRect(_ball.frame, rect)) {
-    if (x != 0) _gameBrain.dx = x;
-    if (y != 0) _gameBrain.dy = y;
+    [_gameBrain processCollisionAtX:x andY:y];
     return YES;
   }
   return NO;

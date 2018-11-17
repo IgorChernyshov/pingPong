@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop;
 - (NSInteger)isGameOverWithScoresTop:(NSInteger)top
                               bottom:(NSInteger)bottom;
+- (void)processCollisionAtX:(float)x
+                     andY:(float)y;
 
 @end
 
