@@ -104,7 +104,7 @@
 
 # pragma mark Game Brains
 
-// Score setters and getters
+// Redefine score setters and getters
 - (NSInteger)scoreTopValue {
   return [_scoreTop.text intValue];
 }
@@ -182,8 +182,9 @@
   _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
   
   [self moveAI];
-  [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_gameBrain.dx) Y:0];
-  [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_gameBrain.dx) Y:0];
+  
+  [self checkCollision:_leftBorderView.frame X:fabs(_gameBrain.dx) Y:0];
+  [self checkCollision:_rightBorderView.frame X:-fabs(_gameBrain.dx) Y:0];
   if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
     [_gameBrain increaseSpeed];
   }
