@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)increaseSpeed;
 - (void)reset;
 - (void)stop;
+- (NSInteger)isGameOverWithScoresTop:(NSInteger)top
+                              bottom:(NSInteger)bottom;
 
 @end
 

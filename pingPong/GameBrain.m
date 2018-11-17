@@ -6,6 +6,8 @@
 //  Copyright © 2018 Igor Chernyshov. All rights reserved.
 //
 
+#define MAX_SCORE 6
+
 #import "GameBrain.h"
 
 @implementation GameBrain
@@ -37,6 +39,13 @@
     [_timer invalidate];
     _timer = nil;
   }
+}
+
+- (NSInteger)isGameOverWithScoresTop:(NSInteger)top
+                              bottom:(NSInteger)bottom {
+  if (top >= MAX_SCORE) return 1;
+  if (bottom >= MAX_SCORE) return 2;
+  return 0;
 }
 
 @end

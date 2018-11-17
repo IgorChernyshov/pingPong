@@ -10,7 +10,6 @@
 #define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
 #define HALF_SCREEN_WIDTH SCREEN_WIDTH/2
 #define HALF_SCREEN_HEIGHT SCREEN_HEIGHT/2
-#define MAX_SCORE 6
 
 #import "GameViewController.h"
 #import "GameBrain.h"
@@ -30,6 +29,9 @@
 @property (strong, nonatomic) UITouch *bottomTouch;
 @property (strong, nonatomic) UILabel *scoreTop;
 @property (strong, nonatomic) UILabel *scoreBottom;
+
+@property (nonatomic) NSInteger scoreTopValue;
+@property (nonatomic) NSInteger scoreBottomValue;
 
 @property (strong, nonatomic) GameBrain *gameBrain;
 
@@ -102,6 +104,22 @@
 
 # pragma mark Game Brains
 
+- (NSInteger)scoreTopValue {
+  return [_scoreTop.text intValue];
+}
+
+- (void)setScoreTopValue:(NSInteger)scoreTopValue {
+  _scoreTop.text = [NSString stringWithFormat:@"%ld", scoreTopValue];
+}
+
+- (NSInteger)scoreBottomValue {
+  return [_scoreBottom.text intValue];
+}
+
+- (void)setScoreBottomValue:(NSInteger)scoreBottomValue  {
+  _scoreBottom.text = [NSString stringWithFormat:@"%ld", scoreBottomValue];
+}
+
 - (void)displayMessage:(NSString *)message {
   [self stop];
   UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:message preferredStyle:(UIAlertControllerStyleAlert)];
@@ -120,16 +138,15 @@
 - (void)newGame {
   [self reset];
   
-  _scoreTop.text = @"0";
-  _scoreBottom.text = @"0";
+  self.scoreTopValue = 0;
+  self.scoreBottomValue = 0;
   
   [self displayMessage:@"Готовы к игре?"];
 }
 
-- (int)gameOver {
-  if ([_scoreTop.text intValue] >= MAX_SCORE) return 1;
-  if ([_scoreBottom.text intValue] >= MAX_SCORE) return 2;
-  return 0;
+- (NSInteger)gameOver {
+  return [_gameBrain isGameOverWithScoresTop:self.scoreTopValue
+                                      bottom:self.scoreBottomValue];
 }
 
 - (void)start {
@@ -142,7 +159,6 @@
 
 - (void)reset {
   [_gameBrain reset];
-  
   _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
 }
 
@@ -162,7 +178,7 @@
 
 - (void)animate {
   _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
-
+  
   [self moveAI];
   [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_gameBrain.dx) Y:0];
   [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_gameBrain.dx) Y:0];
@@ -191,16 +207,10 @@
 - (BOOL)goal
 {
   if (_ball.center.y < 0 || _ball.center.y >= SCREEN_HEIGHT) {
-    int s1 = [_scoreTop.text intValue];
-    int s2 = [_scoreBottom.text intValue];
-    
-    if (_ball.center.y < 0) ++s2; else ++s1;
-    _scoreTop.text = [NSString stringWithFormat:@"%u", s1];
-    _scoreBottom.text = [NSString stringWithFormat:@"%u", s2];
-    
-    int gameOver = [self gameOver];
+    if (_ball.center.y < 0) ++self.scoreBottomValue; else ++self.scoreTopValue;
+    NSInteger gameOver = [self gameOver];
     if (gameOver) {
-      [self displayMessage:[NSString stringWithFormat:@"Игрок %i выиграл", gameOver]];
+      [self displayMessage:[NSString stringWithFormat:@"Игрок %li выиграл", gameOver]];
     } else {
       [self reset];
     }
