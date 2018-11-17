@@ -185,16 +185,12 @@
   [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_gameBrain.dx) Y:0];
   [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_gameBrain.dx) Y:0];
   if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
-    [self increaseSpeed];
+    [_gameBrain increaseSpeed];
   }
   if ([self checkCollision:_paddleBottom.frame X:(_ball.center.x - _paddleBottom.center.x) / 32.0 Y:-1]) {
-    [self increaseSpeed];
+    [_gameBrain increaseSpeed];
   }
   [self goal];
-}
-
-- (void)increaseSpeed {
-  [_gameBrain increaseSpeed];
 }
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
