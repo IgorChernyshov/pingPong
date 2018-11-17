@@ -13,6 +13,7 @@
 #define MAX_SCORE 6
 
 #import "GameViewController.h"
+#import "GameBrain.h"
 
 @interface GameViewController ()
 
@@ -29,10 +30,12 @@
 @property (strong, nonatomic) UITouch *bottomTouch;
 @property (strong, nonatomic) UILabel *scoreTop;
 @property (strong, nonatomic) UILabel *scoreBottom;
-@property (strong, nonatomic) NSTimer * timer;
-@property (nonatomic) float speed;
+@property (strong, nonatomic) NSTimer *timer;
+
 @property (nonatomic) float dx;
 @property (nonatomic) float dy;
+
+@property (strong, nonatomic) GameBrain *gameBrain;
 
 @end
 
@@ -40,6 +43,7 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  _gameBrain = [GameBrain new];
   [self config];
 }
 
@@ -157,7 +161,7 @@
   
   _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
   
-  _speed = 2;
+  _gameBrain.speed = 2;
 }
 
 - (void)stop {
@@ -169,7 +173,7 @@
 }
 
 - (void)animate {
-  _ball.center = CGPointMake(_ball.center.x + _dx*_speed, _ball.center.y + _dy*_speed);
+  _ball.center = CGPointMake(_ball.center.x + _dx * _gameBrain.speed, _ball.center.y + _dy * _gameBrain.speed);
   
   // AI
   // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
@@ -191,8 +195,7 @@
 }
 
 - (void)increaseSpeed {
-  _speed += 0.5;
-  if (_speed > 10) _speed = 10;
+  [_gameBrain increaseSpeed];
 }
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
