@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) float speed;
 
 - (void)increaseSpeed;
+- (void)stop;
 
 @end
 

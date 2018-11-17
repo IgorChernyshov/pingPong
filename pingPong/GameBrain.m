@@ -10,6 +10,13 @@
 
 @implementation GameBrain
 
+- (void)stop {
+  if (_timer) {
+    [_timer invalidate];
+    _timer = nil;
+  }
+}
+
 - (void)increaseSpeed {
   _speed += 0.5;
   if (_speed > 10) _speed = 10;

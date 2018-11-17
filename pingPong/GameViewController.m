@@ -30,7 +30,6 @@
 @property (strong, nonatomic) UITouch *bottomTouch;
 @property (strong, nonatomic) UILabel *scoreTop;
 @property (strong, nonatomic) UILabel *scoreBottom;
-@property (strong, nonatomic) NSTimer *timer;
 
 @property (nonatomic) float dx;
 @property (nonatomic) float dy;
@@ -138,8 +137,8 @@
 
 - (void)start {
   _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
-  if (!_timer) {
-    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0 target:self selector:@selector(animate) userInfo:nil repeats:YES];
+  if (!_gameBrain.timer) {
+    _gameBrain.timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0 target:self selector:@selector(animate) userInfo:nil repeats:YES];
   }
   _ball.hidden = NO;
 }
@@ -165,10 +164,7 @@
 }
 
 - (void)stop {
-  if (_timer) {
-    [_timer invalidate];
-    _timer = nil;
-  }
+  [_gameBrain stop];
   _ball.hidden = YES;
 }
 
