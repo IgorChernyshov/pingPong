@@ -170,6 +170,15 @@
 
 - (void)animate {
   _ball.center = CGPointMake(_ball.center.x + _dx*_speed, _ball.center.y + _dy*_speed);
+  
+  // AI
+  // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
+  if ((_paddleTop.center.x < _ball.center.x) && (_paddleTop.center.x + 5 < _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x + 5, _paddleTop.center.y);
+  } else if ((_paddleTop.center.x > _ball.center.x) && (_paddleTop.center.x - 5 > _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x - 5, _paddleTop.center.y);
+  }
+  
   [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_dx) Y:0];
   [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_dx) Y:0];
   if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
