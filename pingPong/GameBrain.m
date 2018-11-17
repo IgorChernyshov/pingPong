@@ -10,16 +10,33 @@
 
 @implementation GameBrain
 
+- (void)increaseSpeed {
+  _speed += 0.5;
+  if (_speed > 10) _speed = 10;
+}
+
+- (void)reset {
+  if ((arc4random() % 2) == 0) {
+    _dx = -1;
+  } else {
+    _dx = 1;
+  }
+  
+  if (_dy != 0) {
+    _dy = -_dy;
+  } else if ((arc4random() % 2) == 0) {
+    _dy = -1;
+  } else  {
+    _dy = 1;
+  }
+  _speed = 2;
+}
+
 - (void)stop {
   if (_timer) {
     [_timer invalidate];
     _timer = nil;
   }
-}
-
-- (void)increaseSpeed {
-  _speed += 0.5;
-  if (_speed > 10) _speed = 10;
 }
 
 @end

@@ -31,9 +31,6 @@
 @property (strong, nonatomic) UILabel *scoreTop;
 @property (strong, nonatomic) UILabel *scoreBottom;
 
-@property (nonatomic) float dx;
-@property (nonatomic) float dy;
-
 @property (strong, nonatomic) GameBrain *gameBrain;
 
 @end
@@ -144,23 +141,9 @@
 }
 
 - (void)reset {
-  if ((arc4random() % 2) == 0) {
-    _dx = -1;
-  } else {
-    _dx = 1;
-  }
-  
-  if (_dy != 0) {
-    _dy = -_dy;
-  } else if ((arc4random() % 2) == 0) {
-    _dy = -1;
-  } else  {
-    _dy = 1;
-  }
+  [_gameBrain reset];
   
   _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
-  
-  _gameBrain.speed = 2;
 }
 
 - (void)stop {
@@ -169,7 +152,7 @@
 }
 
 - (void)animate {
-  _ball.center = CGPointMake(_ball.center.x + _dx * _gameBrain.speed, _ball.center.y + _dy * _gameBrain.speed);
+  _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
   
   // AI
   // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
@@ -179,8 +162,8 @@
     _paddleTop.center = CGPointMake(_paddleTop.center.x - 5, _paddleTop.center.y);
   }
   
-  [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_dx) Y:0];
-  [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_dx) Y:0];
+  [self checkCollision:CGRectMake(0, 0, 20, SCREEN_HEIGHT) X:fabs(_gameBrain.dx) Y:0];
+  [self checkCollision:CGRectMake(SCREEN_WIDTH, 0, 20, SCREEN_HEIGHT) X:-fabs(_gameBrain.dx) Y:0];
   if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
     [self increaseSpeed];
   }
@@ -196,8 +179,8 @@
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
   if (CGRectIntersectsRect(_ball.frame, rect)) {
-    if (x != 0) _dx = x;
-    if (y != 0) _dy = y;
+    if (x != 0) _gameBrain.dx = x;
+    if (y != 0) _gameBrain.dy = y;
     return YES;
   }
   return NO;
