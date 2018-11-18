@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GameBrain : NSObject
 
 @property (strong, nonatomic) NSTimer *timer;
+@property (nonatomic) NSInteger difficulty;
 @property (nonatomic) float speed;
 @property (nonatomic) float dx;
 @property (nonatomic) float dy;

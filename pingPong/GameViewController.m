@@ -33,7 +33,6 @@
 
 @property (nonatomic) NSInteger scoreTopValue;
 @property (nonatomic) NSInteger scoreBottomValue;
-@property (nonatomic) NSInteger difficulty;
 
 @property (strong, nonatomic) GameBrain *gameBrain;
 
@@ -126,15 +125,15 @@
 - (void)selectDifficulty {
   UIAlertController *__block alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:@"Select difficulty" preferredStyle:(UIAlertControllerStyleAlert)];
   UIAlertAction *easy = [UIAlertAction actionWithTitle:@"Easy" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
-    self.difficulty = 3;
+    self.gameBrain.difficulty = 3;
     [self newGame];
   }];
   UIAlertAction *medium = [UIAlertAction actionWithTitle:@"Medium" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
-    self.difficulty = 5;
+    self.gameBrain.difficulty = 5;
     [self newGame];
   }];
   UIAlertAction *hard = [UIAlertAction actionWithTitle:@"Hard" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
-    self.difficulty = 10;
+    self.gameBrain.difficulty = 10;
     [self newGame];
   }];
   [alertController addAction:easy];
@@ -225,10 +224,10 @@
 
 - (void)moveAI {
   // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
-  if ((_paddleTop.center.x < _ball.center.x) && (_paddleTop.center.x + self.difficulty < _ball.center.x)) {
-    _paddleTop.center = CGPointMake(_paddleTop.center.x + self.difficulty, _paddleTop.center.y);
-  } else if ((_paddleTop.center.x > _ball.center.x) && (_paddleTop.center.x - self.difficulty > _ball.center.x)) {
-    _paddleTop.center = CGPointMake(_paddleTop.center.x - self.difficulty, _paddleTop.center.y);
+  if ((_paddleTop.center.x < _ball.center.x) && (_paddleTop.center.x + self.gameBrain.difficulty < _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x + self.gameBrain.difficulty, _paddleTop.center.y);
+  } else if ((_paddleTop.center.x > _ball.center.x) && (_paddleTop.center.x - self.gameBrain.difficulty > _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x - self.gameBrain.difficulty, _paddleTop.center.y);
   }
 }
 
