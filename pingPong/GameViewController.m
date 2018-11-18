@@ -10,6 +10,7 @@
 #define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
 #define HALF_SCREEN_WIDTH SCREEN_WIDTH/2
 #define HALF_SCREEN_HEIGHT SCREEN_HEIGHT/2
+#define BALL_SIZE_COEFFICIENT 0.05
 
 #import "GameViewController.h"
 #import "GameBrain.h"
@@ -177,7 +178,8 @@
 
 - (void)reset {
   [_gameBrain reset];
-  _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
+  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
+  _ball.layer.cornerRadius = _ball.frame.size.height / 2;
 }
 
 - (void)stop {
@@ -200,6 +202,7 @@
 }
 
 - (void)animate {
+  [self animateBallSizeChange];
   _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
   
   [self moveAI];
@@ -213,6 +216,33 @@
     [_gameBrain increaseSpeed];
   }
   [self goal];
+}
+
+- (void)animateBallSizeChange {
+  if (CGRectIntersectsRect(_ball.frame, _netView.frame)) { // If ball crosses the net it must has it initial size
+    _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, 20, 20);
+  } else if (_gameBrain.dy > 0) { // Ball is going to bottom
+    // And it is going to the net
+    if (_ball.center.y < HALF_SCREEN_HEIGHT) {
+      // Animate size increase
+      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
+      // If it is going away from the net
+    } else {
+      // Animate size decrease
+      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height - BALL_SIZE_COEFFICIENT, _ball.frame.size.width - BALL_SIZE_COEFFICIENT);
+    }
+  } else if (_gameBrain.dy < 0) {
+    // And it is going to the net
+    if (_ball.center.y > HALF_SCREEN_HEIGHT) {
+      // Animate size increase
+      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
+      // If it is going away from the net
+    } else {
+      // Animate size decrease
+      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height - BALL_SIZE_COEFFICIENT, _ball.frame.size.width - BALL_SIZE_COEFFICIENT);
+    }
+  }
+  _ball.layer.cornerRadius = _ball.frame.size.height / 2;
 }
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
@@ -286,7 +316,7 @@
   // Ball
   _ball = [[UIView alloc] initWithFrame:CGRectMake(self.view.center.x - 10, self.view.center.y - 10, 20, 20)];
   _ball.backgroundColor = [UIColor whiteColor];
-  _ball.layer.cornerRadius = 10;
+  _ball.layer.cornerRadius = _ball.frame.size.height / 2;
   _ball.hidden = YES;
   [self.view addSubview:_ball];
   
