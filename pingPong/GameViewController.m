@@ -44,13 +44,12 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   _gameBrain = [GameBrain new];
-  [self config];
+  [self prepareUI];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
   [self selectDifficulty];
-//  [self newGame];
 }
 
 #pragma mark Touches handling
@@ -123,22 +122,7 @@
   _scoreBottom.text = [NSString stringWithFormat:@"%ld", scoreBottomValue];
 }
 
-// Game logic
-- (void)displayMessage:(NSString *)message {
-  [self stop];
-  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:message preferredStyle:(UIAlertControllerStyleAlert)];
-  UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
-    if ([self gameOver]) {
-      [self newGame];
-      return;
-    }
-    [self reset];
-    [self start];
-  }];
-  [alertController addAction:action];
-  [self presentViewController:alertController animated:YES completion:nil];
-}
-
+// Game controller
 - (void)selectDifficulty {
   UIAlertController *__block alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:@"Select difficulty" preferredStyle:(UIAlertControllerStyleAlert)];
   UIAlertAction *easy = [UIAlertAction actionWithTitle:@"Easy" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
@@ -168,6 +152,26 @@
   [self displayMessage:@"Готовы к игре?"];
 }
 
+- (void)displayMessage:(NSString *)message {
+  [self stop];
+  UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:message preferredStyle:(UIAlertControllerStyleAlert)];
+  UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
+    if ([self gameOver]) {
+      [self newGame];
+      return;
+    }
+    [self reset];
+    [self start];
+  }];
+  [alertController addAction:action];
+  [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)stop {
+  [_gameBrain stop];
+  _ball.hidden = YES;
+}
+
 - (void)start {
   _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
   if (!_gameBrain.timer) {
@@ -176,35 +180,8 @@
   _ball.hidden = NO;
 }
 
-- (void)reset {
-  [_gameBrain reset];
-  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
-  _ball.layer.cornerRadius = _ball.frame.size.height / 2;
-}
-
-- (void)stop {
-  [_gameBrain stop];
-  _ball.hidden = YES;
-}
-
-- (NSInteger)gameOver {
-  return [_gameBrain isGameOverWithScoresTop:self.scoreTopValue
-                                      bottom:self.scoreBottomValue];
-}
-
-- (void)moveAI {
-  // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
-  if ((_paddleTop.center.x < _ball.center.x) && (_paddleTop.center.x + self.difficulty < _ball.center.x)) {
-    _paddleTop.center = CGPointMake(_paddleTop.center.x + self.difficulty, _paddleTop.center.y);
-  } else if ((_paddleTop.center.x > _ball.center.x) && (_paddleTop.center.x - self.difficulty > _ball.center.x)) {
-    _paddleTop.center = CGPointMake(_paddleTop.center.x - self.difficulty, _paddleTop.center.y);
-  }
-}
-
 - (void)animate {
-  [self animateBallSizeChange];
-  _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
-  
+  [self animateBall];
   [self moveAI];
   
   [self checkCollision:_leftBorderView.frame X:fabs(_gameBrain.dx) Y:0];
@@ -218,7 +195,7 @@
   [self goal];
 }
 
-- (void)animateBallSizeChange {
+- (void)animateBall {
   if (CGRectIntersectsRect(_ball.frame, _netView.frame)) { // If ball crosses the net it must has it initial size
     _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, 20, 20);
   } else if (_gameBrain.dy > 0) { // Ball is going to bottom
@@ -243,6 +220,16 @@
     }
   }
   _ball.layer.cornerRadius = _ball.frame.size.height / 2;
+  _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
+}
+
+- (void)moveAI {
+  // If top paddle is more then "difficulty" pixels away from the ball - move it towards the ball
+  if ((_paddleTop.center.x < _ball.center.x) && (_paddleTop.center.x + self.difficulty < _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x + self.difficulty, _paddleTop.center.y);
+  } else if ((_paddleTop.center.x > _ball.center.x) && (_paddleTop.center.x - self.difficulty > _ball.center.x)) {
+    _paddleTop.center = CGPointMake(_paddleTop.center.x - self.difficulty, _paddleTop.center.y);
+  }
 }
 
 - (BOOL)checkCollision: (CGRect)rect X:(float)x Y:(float)y {
@@ -269,9 +256,26 @@
   return NO;
 }
 
+- (NSInteger)gameOver {
+  return [_gameBrain isGameOverWithScoresTop:self.scoreTopValue
+                                      bottom:self.scoreBottomValue];
+}
+
+- (void)reset {
+  [_gameBrain reset];
+  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
+}
+
 #pragma mark Prepare UI
 
-- (void)config {
+- (void)prepareUI {
+  [self createTable];
+  [self createPaddles];
+  [self createBall];
+  [self createScores];
+}
+
+- (void)createTable {
   // Table
   self.view.backgroundColor = [UIColor colorWithRed:100.0/255.0 green:135.0/255.0 blue:191.0/255.0 alpha:1.0];
   
@@ -279,7 +283,6 @@
   _topBorderView = [[UIView alloc] initWithFrame:CGRectMake(4, 0, SCREEN_WIDTH - 8, 4)];
   _topBorderView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
   [self.view addSubview:_topBorderView];
-  
   
   _bottomBorderView = [[UIView alloc] initWithFrame:CGRectMake(4, SCREEN_HEIGHT - 4, SCREEN_WIDTH - 8, 4)];
   _bottomBorderView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
@@ -301,7 +304,9 @@
   _netView = [[UIView alloc] initWithFrame:CGRectMake(4, HALF_SCREEN_HEIGHT - 2, SCREEN_WIDTH - 8, 4)];
   _netView.backgroundColor = [UIColor whiteColor];
   [self.view addSubview:_netView];
-  
+}
+
+- (void)createPaddles {
   // Paddles
   _paddleTop = [[UIImageView alloc] initWithFrame:CGRectMake(30, 40, 90, 60)];
   _paddleTop.image = [UIImage imageNamed:@"paddleTop"];
@@ -312,14 +317,18 @@
   _paddleBottom.image = [UIImage imageNamed:@"paddleBottom"];
   _paddleBottom.contentMode = UIViewContentModeScaleAspectFit;
   [self.view addSubview:_paddleBottom];
-  
+}
+
+- (void)createBall {
   // Ball
   _ball = [[UIView alloc] initWithFrame:CGRectMake(self.view.center.x - 10, self.view.center.y - 10, 20, 20)];
   _ball.backgroundColor = [UIColor whiteColor];
   _ball.layer.cornerRadius = _ball.frame.size.height / 2;
   _ball.hidden = YES;
   [self.view addSubview:_ball];
-  
+}
+
+- (void)createScores {
   // Scores
   _scoreTop = [[UILabel alloc] initWithFrame:CGRectMake(SCREEN_WIDTH - 70, HALF_SCREEN_HEIGHT - 70, 50, 50)];
   _scoreTop.textColor = [UIColor whiteColor];
