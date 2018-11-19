@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C1C464221A0904D003E7D3E /* GameBrain.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C1C464121A0904D003E7D3E /* GameBrain.m */; };
 		9C814157219DE62000E07D2D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C814156219DE62000E07D2D /* AppDelegate.m */; };
 		9C81415A219DE62000E07D2D /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C814159219DE62000E07D2D /* GameViewController.m */; };
 		9C81415D219DE62000E07D2D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C81415B219DE62000E07D2D /* Main.storyboard */; };
@@ -16,6 +17,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9C1C464021A0904D003E7D3E /* GameBrain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameBrain.h; sourceTree = "<group>"; };
+		9C1C464121A0904D003E7D3E /* GameBrain.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameBrain.m; sourceTree = "<group>"; };
 		9C814152219DE62000E07D2D /* pingPong.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pingPong.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C814155219DE62000E07D2D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		9C814156219DE62000E07D2D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -62,6 +65,8 @@
 				9C814156219DE62000E07D2D /* AppDelegate.m */,
 				9C814158219DE62000E07D2D /* GameViewController.h */,
 				9C814159219DE62000E07D2D /* GameViewController.m */,
+				9C1C464021A0904D003E7D3E /* GameBrain.h */,
+				9C1C464121A0904D003E7D3E /* GameBrain.m */,
 				9C81415B219DE62000E07D2D /* Main.storyboard */,
 				9C81415E219DE62000E07D2D /* Assets.xcassets */,
 				9C814160219DE62000E07D2D /* LaunchScreen.storyboard */,
@@ -141,6 +146,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C1C464221A0904D003E7D3E /* GameBrain.m in Sources */,
 				9C81415A219DE62000E07D2D /* GameViewController.m in Sources */,
 				9C814165219DE62000E07D2D /* main.m in Sources */,
 				9C814157219DE62000E07D2D /* AppDelegate.m in Sources */,
