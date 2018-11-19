@@ -122,6 +122,20 @@
 }
 
 // Game controller
+- (void)reset {
+  [_gameBrain reset];
+  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
+}
+
+- (void)newGame {
+  [self reset];
+  
+  self.scoreTopValue = 0;
+  self.scoreBottomValue = 0;
+  
+  [self displayMessage:@"Tap OK to start"];
+}
+
 - (void)selectDifficulty {
   UIAlertController *__block alertController = [UIAlertController alertControllerWithTitle:@"Ping Pong" message:@"Select difficulty" preferredStyle:(UIAlertControllerStyleAlert)];
   UIAlertAction *easy = [UIAlertAction actionWithTitle:@"Easy" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction * _Nonnull action) {
@@ -142,13 +156,17 @@
   [self presentViewController:alertController animated:true completion:nil];
 }
 
-- (void)newGame {
-  [self reset];
-  
-  self.scoreTopValue = 0;
-  self.scoreBottomValue = 0;
-  
-  [self displayMessage:@"Готовы к игре?"];
+- (void)start {
+  _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
+  if (!_gameBrain.timer) {
+    _gameBrain.timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0 target:self selector:@selector(animate) userInfo:nil repeats:YES];
+  }
+  _ball.hidden = NO;
+}
+
+- (void)stop {
+  [_gameBrain stop];
+  _ball.hidden = YES;
 }
 
 - (void)displayMessage:(NSString *)message {
@@ -166,58 +184,18 @@
   [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)stop {
-  [_gameBrain stop];
-  _ball.hidden = YES;
-}
-
-- (void)start {
-  _ball.center = CGPointMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT);
-  if (!_gameBrain.timer) {
-    _gameBrain.timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0 target:self selector:@selector(animate) userInfo:nil repeats:YES];
-  }
-  _ball.hidden = NO;
-}
-
-- (void)animate {
-  [self animateBall];
-  [self moveAI];
-  
-  [self checkCollision:_leftBorderView.frame X:fabs(_gameBrain.dx) Y:0];
-  [self checkCollision:_rightBorderView.frame X:-fabs(_gameBrain.dx) Y:0];
-  if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
-    [_gameBrain increaseSpeed];
-  }
-  if ([self checkCollision:_paddleBottom.frame X:(_ball.center.x - _paddleBottom.center.x) / 32.0 Y:-1]) {
-    [_gameBrain increaseSpeed];
-  }
-  [self goal];
-}
-
 - (void)animateBall {
-  if (CGRectIntersectsRect(_ball.frame, _netView.frame)) { // If ball crosses the net it must has it initial size
+  if (CGRectIntersectsRect(_ball.frame, _netView.frame)) {
+    // If ball crosses the net - set it size to initial values
     _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, 20, 20);
-  } else if (_gameBrain.dy > 0) { // Ball is going to bottom
-    // And it is going to the net
-    if (_ball.center.y < HALF_SCREEN_HEIGHT) {
-      // Animate size increase
-      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
-      // If it is going away from the net
-    } else {
-      // Animate size decrease
-      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height - BALL_SIZE_COEFFICIENT, _ball.frame.size.width - BALL_SIZE_COEFFICIENT);
-    }
-  } else if (_gameBrain.dy < 0) {
-    // And it is going to the net
-    if (_ball.center.y > HALF_SCREEN_HEIGHT) {
-      // Animate size increase
-      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
-      // If it is going away from the net
-    } else {
-      // Animate size decrease
-      _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height - BALL_SIZE_COEFFICIENT, _ball.frame.size.width - BALL_SIZE_COEFFICIENT);
-    }
+  } else if (((_gameBrain.dy > 0) && (_ball.center.y < HALF_SCREEN_HEIGHT)) || ((_gameBrain.dy < 0) && (_ball.center.y > HALF_SCREEN_HEIGHT))) {
+    // If ball is approaching the net - increase it size
+    _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
+  } else if (((_gameBrain.dy > 0) && (_ball.center.y > HALF_SCREEN_HEIGHT)) || ((_gameBrain.dy < 0) && (_ball.center.y < HALF_SCREEN_HEIGHT))) {
+    // If ball is flying away from the net - decrease it size
+    _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height - BALL_SIZE_COEFFICIENT, _ball.frame.size.width - BALL_SIZE_COEFFICIENT);
   }
+  // Calculate new corner radius and then finally move the ball into right direction
   _ball.layer.cornerRadius = _ball.frame.size.height / 2;
   _ball.center = CGPointMake(_ball.center.x + _gameBrain.dx * _gameBrain.speed, _ball.center.y + _gameBrain.dy * _gameBrain.speed);
 }
@@ -245,7 +223,7 @@
     if (_ball.center.y < 0) ++self.scoreBottomValue; else ++self.scoreTopValue;
     NSInteger gameOver = [self gameOver];
     if (gameOver) {
-      [self displayMessage:[NSString stringWithFormat:@"Игрок %li выиграл", gameOver]];
+      [self displayMessage:[NSString stringWithFormat:@"Player %li won!", gameOver]];
     } else {
       [self reset];
     }
@@ -255,15 +233,25 @@
   return NO;
 }
 
-- (NSInteger)gameOver {
-  return [_gameBrain isGameOverWithScoresTop:self.scoreTopValue
-                                      bottom:self.scoreBottomValue];
+- (void)animate {
+  [self animateBall];
+  [self moveAI];
+  
+  [self checkCollision:_leftBorderView.frame X:fabs(_gameBrain.dx) Y:0];
+  [self checkCollision:_rightBorderView.frame X:-fabs(_gameBrain.dx) Y:0];
+  if ([self checkCollision:_paddleTop.frame X:(_ball.center.x - _paddleTop.center.x) / 32.0 Y:1]) {
+    [_gameBrain increaseSpeed];
+  }
+  if ([self checkCollision:_paddleBottom.frame X:(_ball.center.x - _paddleBottom.center.x) / 32.0 Y:-1]) {
+    [_gameBrain increaseSpeed];
+  }
+  [self goal];
 }
 
-- (void)reset {
-  [_gameBrain reset];
-  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
+- (NSInteger)gameOver {
+  return [_gameBrain isGameOverWithScoresTop:self.scoreTopValue bottom:self.scoreBottomValue];
 }
+
 
 #pragma mark Prepare UI
 

@@ -43,16 +43,14 @@
 }
 
 - (NSInteger)isGameOverWithScoresTop:(NSInteger)top
-                              bottom:(NSInteger)bottom
-{
+                              bottom:(NSInteger)bottom {
   if (top >= MAX_SCORE) return 1;
   if (bottom >= MAX_SCORE) return 2;
   return 0;
 }
 
 - (void)processCollisionAtX:(float)x
-                     andY:(float)y
-{
+                       andY:(float)y {
   if (x != 0) _dx = x;
   if (y != 0) _dy = y;
 }
