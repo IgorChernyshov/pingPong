@@ -11,6 +11,7 @@
 #define HALF_SCREEN_WIDTH SCREEN_WIDTH/2
 #define HALF_SCREEN_HEIGHT SCREEN_HEIGHT/2
 #define BALL_SIZE_COEFFICIENT 0.05
+#define BALL_SIZE 20
 
 #import "GameViewController.h"
 #import "GameBrain.h"
@@ -124,7 +125,7 @@
 // Game controller
 - (void)reset {
   [_gameBrain reset];
-  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, 20, 20);
+  _ball.frame = CGRectMake(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, BALL_SIZE, BALL_SIZE);
 }
 
 - (void)newGame {
@@ -187,7 +188,7 @@
 - (void)animateBall {
   if (CGRectIntersectsRect(_ball.frame, _netView.frame)) {
     // If ball crosses the net - set it size to initial values
-    _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, 20, 20);
+    _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, BALL_SIZE, BALL_SIZE);
   } else if (((_gameBrain.dy > 0) && (_ball.center.y < HALF_SCREEN_HEIGHT)) || ((_gameBrain.dy < 0) && (_ball.center.y > HALF_SCREEN_HEIGHT))) {
     // If ball is approaching the net - increase it size
     _ball.frame = CGRectMake(_ball.frame.origin.x, _ball.frame.origin.y, _ball.frame.size.height + BALL_SIZE_COEFFICIENT, _ball.frame.size.width + BALL_SIZE_COEFFICIENT);
@@ -308,7 +309,7 @@
 
 - (void)createBall {
   // Ball
-  _ball = [[UIView alloc] initWithFrame:CGRectMake(self.view.center.x - 10, self.view.center.y - 10, 20, 20)];
+  _ball = [[UIView alloc] initWithFrame:CGRectMake(self.view.center.x - BALL_SIZE / 2, self.view.center.y - BALL_SIZE / 2, BALL_SIZE, BALL_SIZE)];
   _ball.backgroundColor = [UIColor whiteColor];
   _ball.layer.cornerRadius = _ball.frame.size.height / 2;
   _ball.hidden = YES;
